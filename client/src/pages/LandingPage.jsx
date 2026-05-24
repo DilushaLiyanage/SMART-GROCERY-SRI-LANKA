@@ -30,7 +30,7 @@ const S = {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     borderBottom: '1px solid #EBEBEA',
-    padding: '80px 40px 64px',
+    padding: '80px 0 0',
     textAlign: 'center',
     position: 'relative',
     overflow: 'hidden',
@@ -124,28 +124,36 @@ const S = {
   heroImgs: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3,1fr)',
-    gap: 12,
-    maxWidth: 860,
-    margin: '0 auto',
+    gap: 16,
+    width: '100%',
+    maxWidth: 'none',
+    margin: '48px 0 0 0',
   },
   heroImgWrap: {
-    borderRadius: '18px 18px 0 0',
+    borderRadius: 24,
     overflow: 'hidden',
-    height: 180,
+    height: 'clamp(180px, 20vw, 260px)',
     position: 'relative',
   },
   heroImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
   heroImgCap: {
     position: 'absolute',
-    bottom: 12,
-    left: 12,
-    background: 'rgba(255,255,255,.88)',
-    fontSize: 11,
+    bottom: 16,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#fff',
+    fontSize: 13,
     fontWeight: 600,
-    color: '#111',
-    padding: '4px 11px',
+    color: '#0A0A0A',
+    padding: '8px 20px',
     borderRadius: 999,
-    letterSpacing: '.03em',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
+    zIndex: 10,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
   },
 
   /* Stores */
@@ -393,60 +401,63 @@ export const LandingPage = () => {
       {/* ── Hero ── */}
       <section style={S.hero}>
         <motion.div variants={container} initial="hidden" animate="visible"
-          style={{ maxWidth: 860, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-          <motion.span variants={item} style={S.badge}>
-            🇱🇰 Sri Lanka's First Grocery Marketplace
-          </motion.span>
+          {/* Centered text container to keep content from moving/stretching on other desktop sizes */}
+          <div style={{ maxWidth: 860, width: '100%', padding: '0 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <motion.span variants={item} style={S.badge}>
+              🇱🇰 Sri Lanka's First Grocery Marketplace
+            </motion.span>
 
-          <motion.h1 variants={item} style={S.h1}>
-            Fresh Groceries,{' '}
-            <br />
-            <em style={S.h1em}>Smartest Prices.</em>
-          </motion.h1>
+            <motion.h1 variants={item} style={S.h1}>
+              Fresh Groceries,{' '}
+              <br />
+              <em style={S.h1em}>Smartest Prices.</em>
+            </motion.h1>
 
-          <motion.p variants={item} style={S.heroP}>
-            Compare prices across Keells, Cargills Food City, SPAR, and Laugfs in real-time.
-            Buy cheaper, track orders live, and get delivered instantly.
-          </motion.p>
+            <motion.p variants={item} style={S.heroP}>
+              Compare prices across Keells, Cargills Food City, SPAR, and Laugfs in real-time.
+              Buy cheaper, track orders live, and get delivered instantly.
+            </motion.p>
 
-          <motion.div variants={item} style={S.ctaRow}>
-            {/* Primary CTA with delivery tooltip on hover */}
-            <div style={{ position: 'relative' }}
-              onMouseEnter={() => setCtaHover(true)}
-              onMouseLeave={() => setCtaHover(false)}>
-              <Link to="/select-location" style={{ textDecoration: 'none' }}>
-                <motion.button
-                  style={S.btnPrimary}
-                  whileHover={{ background: '#9E601A', y: -1 }}
-                  whileTap={{ scale: 0.97 }}>
-                  Start Shopping
-                  <ArrowRight size={15} />
+            <motion.div variants={item} style={S.ctaRow}>
+              {/* Primary CTA with delivery tooltip on hover */}
+              <div style={{ position: 'relative' }}
+                onMouseEnter={() => setCtaHover(true)}
+                onMouseLeave={() => setCtaHover(false)}>
+                <Link to="/select-location" style={{ textDecoration: 'none' }}>
+                  <motion.button
+                    style={S.btnPrimary}
+                    whileHover={{ background: '#9E601A', y: -1 }}
+                    whileTap={{ scale: 0.97 }}>
+                    Start Shopping
+                    <ArrowRight size={15} />
+                  </motion.button>
+                </Link>
+                <AnimatePresence>
+                  {ctaHover && (
+                    <motion.div
+                      style={S.tooltip}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 5 }}
+                      transition={{ duration: 0.16 }}>
+                      <Clock size={12} />
+                      Delivered in 25–45 min
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <Link to="/register?role=Courier" style={{ textDecoration: 'none' }}>
+                <motion.button style={S.btnOutline} whileHover={{ borderColor: '#B8B5AF', y: -1 }} whileTap={{ scale: 0.97 }}>
+                  Join as Delivery Partner
                 </motion.button>
               </Link>
-              <AnimatePresence>
-                {ctaHover && (
-                  <motion.div
-                    style={S.tooltip}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    transition={{ duration: 0.16 }}>
-                    <Clock size={12} />
-                    Delivered in 25–45 min
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            </motion.div>
+          </div>
 
-            <Link to="/register?role=Courier" style={{ textDecoration: 'none' }}>
-              <motion.button style={S.btnOutline} whileHover={{ borderColor: '#B8B5AF', y: -1 }} whileTap={{ scale: 0.97 }}>
-                Join as Delivery Partner
-              </motion.button>
-            </Link>
-          </motion.div>
-
-          {/* Hero images */}
+          {/* Hero images stretching completely edge-to-edge */}
           <motion.div variants={item} style={S.heroImgs}>
             {heroImages.map((img) => (
               <div key={img.alt} style={S.heroImgWrap}>
