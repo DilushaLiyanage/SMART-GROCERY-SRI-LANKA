@@ -65,7 +65,7 @@ const S = {
     color: '#6E6E6B',
     lineHeight: 1.75,
     maxWidth: 620,
-    margin: '0 auto 34px',
+    margin: '0 auto 48px',
     fontWeight: 400,
   },
   ctaRow: {
