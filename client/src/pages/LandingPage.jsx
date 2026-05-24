@@ -30,7 +30,7 @@ const S = {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     borderBottom: '1px solid #EBEBEA',
-    padding: '80px 0 0',
+    padding: '80px 0 64px',
     textAlign: 'center',
     position: 'relative',
     overflow: 'hidden',
@@ -125,7 +125,7 @@ const S = {
     width: '100%',
     overflow: 'hidden',
     position: 'relative',
-    margin: '48px 0 0 0',
+    margin: 0,
   },
   carouselTrack: {
     display: 'flex',
@@ -463,8 +463,12 @@ export const LandingPage = () => {
               </Link>
             </motion.div>
           </div>
+        </motion.div>
+      </section>
 
-          {/* Hero images stretching completely edge-to-edge with slow loop */}
+      {/* ── Infinite Scrolling Card Carousel ── */}
+      <div style={{ background: '#FAFAF8', borderBottom: '1px solid #EBEBEA', padding: '48px 0' }}>
+        <motion.div variants={container} initial="hidden" animate="visible">
           <motion.div variants={item} style={S.carouselContainer}>
             <motion.div
               style={S.carouselTrack}
@@ -487,7 +491,7 @@ export const LandingPage = () => {
             </motion.div>
           </motion.div>
         </motion.div>
-      </section>
+      </div>
 
       {/* ── Stores ── */}
       <section style={S.section}>
