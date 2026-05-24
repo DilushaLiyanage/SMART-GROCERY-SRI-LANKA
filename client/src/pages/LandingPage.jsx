@@ -1,173 +1,517 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Tag, Truck, ShoppingBag, ShieldCheck, Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Tag, Truck, ShoppingBag, Clock } from 'lucide-react';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 }
-  }
+/* ─── Google Fonts injected once ─── */
+if (typeof document !== 'undefined' && !document.getElementById('sgsl-fonts')) {
+  const link = document.createElement('link');
+  link.id = 'sgsl-fonts';
+  link.rel = 'stylesheet';
+  link.href =
+    'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;0,800;1,700;1,800&family=DM+Sans:wght@400;500;600&display=swap';
+  document.head.appendChild(link);
+}
+
+/* ─── Inline styles ─── */
+const S = {
+  page: {
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    background: '#FAFAF8',
+    fontFamily: "'DM Sans', sans-serif",
+    color: '#111',
+  },
+
+  /* Hero */
+  hero: {
+    backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(/bg.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    borderBottom: '1px solid #EBEBEA',
+    padding: '80px 40px 64px',
+    textAlign: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  badge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    background: '#FDF6EC',
+    color: '#92580A',
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '.09em',
+    textTransform: 'uppercase',
+    padding: '7px 16px',
+    borderRadius: 999,
+    border: '1px solid #F5DFB0',
+    marginBottom: 22,
+  },
+  h1: {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: 'clamp(40px, 6vw, 64px)',
+    fontWeight: 800,
+    color: '#0A0A0A',
+    lineHeight: 1.06,
+    letterSpacing: '-0.03em',
+    marginBottom: 20,
+  },
+  h1em: { fontStyle: 'italic', color: '#C07722' },
+  heroP: {
+    fontSize: 15,
+    color: '#6E6E6B',
+    lineHeight: 1.75,
+    maxWidth: 480,
+    margin: '0 auto 34px',
+    fontWeight: 400,
+  },
+  ctaRow: {
+    display: 'flex',
+    gap: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 48,
+  },
+  btnPrimary: {
+    background: '#C07722',
+    color: '#fff',
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 600,
+    fontSize: 14,
+    padding: '15px 30px',
+    borderRadius: 14,
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  btnOutline: {
+    background: '#fff',
+    color: '#333',
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 600,
+    fontSize: 14,
+    padding: '15px 30px',
+    borderRadius: 14,
+    border: '1.5px solid #E0DDD8',
+    cursor: 'pointer',
+  },
+  tooltip: {
+    position: 'absolute',
+    top: 'calc(100% + 10px)',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#1A1A1A',
+    color: '#F5DFB0',
+    fontSize: 11,
+    fontWeight: 600,
+    padding: '7px 14px',
+    borderRadius: 10,
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
+    zIndex: 10,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  /* Hero images */
+  heroImgs: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3,1fr)',
+    gap: 12,
+    maxWidth: 860,
+    margin: '0 auto',
+  },
+  heroImgWrap: {
+    borderRadius: '18px 18px 0 0',
+    overflow: 'hidden',
+    height: 180,
+    position: 'relative',
+  },
+  heroImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  heroImgCap: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    background: 'rgba(255,255,255,.88)',
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#111',
+    padding: '4px 11px',
+    borderRadius: 999,
+    letterSpacing: '.03em',
+  },
+
+  /* Stores */
+  section: { padding: '56px 40px', maxWidth: 940, margin: '0 auto', width: '100%' },
+  eyebrow: {
+    fontSize: 10,
+    fontWeight: 700,
+    color: '#C07722',
+    letterSpacing: '.12em',
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  secTitle: {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: 'clamp(26px, 4vw, 36px)',
+    fontWeight: 800,
+    color: '#0A0A0A',
+    lineHeight: 1.1,
+    marginBottom: 10,
+  },
+  secSub: {
+    fontSize: 13,
+    color: '#8A8A87',
+    lineHeight: 1.7,
+    maxWidth: 400,
+    marginBottom: 36,
+  },
+  storesGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: 14,
+  },
+  storeCard: {
+    background: '#fff',
+    border: '1px solid #EBEBEA',
+    borderRadius: 22,
+    padding: 22,
+    display: 'flex',
+    gap: 16,
+    cursor: 'pointer',
+    transition: 'border-color .18s, box-shadow .18s, transform .18s',
+  },
+  storeCardHover: {
+    borderColor: '#C07722',
+    boxShadow: '0 4px 24px rgba(192,119,34,.10)',
+    transform: 'translateY(-3px)',
+  },
+  storeImg: {
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    overflow: 'hidden',
+    flexShrink: 0,
+    border: '1px solid #F0EDE8',
+  },
+  storeName: { fontSize: 14, fontWeight: 600, color: '#0A0A0A', marginBottom: 4 },
+  storeDesc: { fontSize: 11, color: '#9A9A96', lineHeight: 1.55, marginBottom: 12 },
+  storeRating: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 5,
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#6E6E6B',
+    background: '#F7F6F4',
+    padding: '4px 10px',
+    borderRadius: 999,
+  },
+
+  /* Features */
+  featBand: {
+    background: '#fff',
+    borderTop: '1px solid #EBEBEA',
+    borderBottom: '1px solid #EBEBEA',
+  },
+  featInner: {
+    maxWidth: 940,
+    margin: '0 auto',
+    padding: '52px 40px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: 32,
+  },
+  feat: { display: 'flex', flexDirection: 'column', gap: 12 },
+  featIco: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    background: '#FDF6EC',
+    border: '1px solid #F5DFB0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#C07722',
+  },
+  featTitle: { fontSize: 13, fontWeight: 600, color: '#0A0A0A' },
+  featBody: { fontSize: 12, color: '#9A9A96', lineHeight: 1.65 },
+
+  /* Promo */
+  promoWrap: { maxWidth: 940, margin: '0 auto', padding: '0 40px 56px', width: '100%' },
+  promoInner: {
+    background: '#0A0A0A',
+    borderRadius: 26,
+    padding: '40px 44px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 24,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  promoH3: {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: 28,
+    fontWeight: 800,
+    color: '#FAF8F4',
+    marginBottom: 8,
+    lineHeight: 1.15,
+  },
+  promoP: { fontSize: 12, color: '#787874', maxWidth: 340, lineHeight: 1.65 },
+  btnGold: {
+    background: '#C07722',
+    color: '#fff',
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 600,
+    fontSize: 13,
+    padding: '13px 22px',
+    borderRadius: 12,
+    border: 'none',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+  },
+
+  /* Footer */
+  footer: {
+    padding: '28px 40px',
+    borderTop: '1px solid #EBEBEA',
+    maxWidth: 940,
+    margin: '0 auto',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  fBrand: {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: 18,
+    fontWeight: 800,
+    color: '#0A0A0A',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  fLinks: { display: 'flex', gap: 20 },
+  fLink: { fontSize: 12, color: '#9A9A96', cursor: 'pointer', fontWeight: 500 },
+  fCopy: { fontSize: 11, color: '#C4C2BE' },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
-};
+/* ─── Data ─── */
+const stores = [
+  {
+    name: 'Keells Super',
+    desc: 'Freshness Guaranteed',
+    rating: 4.6,
+    img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=120&q=80',
+  },
+  {
+    name: 'Cargills Food City',
+    desc: "Sri Lanka's Everyday Retailer",
+    rating: 4.5,
+    img: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=120&q=80',
+  },
+  {
+    name: 'SPAR Sri Lanka',
+    desc: 'International Quality & Assortment',
+    rating: 4.8,
+    img: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=120&q=80',
+  },
+  {
+    name: 'Laugfs Supermarket',
+    desc: 'Your 24/7 Supermarket',
+    rating: 4.2,
+    img: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=120&q=80',
+  },
+];
 
-export const LandingPage = () => {
+const features = [
+  {
+    icon: <Tag size={18} />,
+    title: 'Cheapest Basket Matcher',
+    body: 'Add items to your cart and let our price comparison engine find which retailer offers the cheapest subtotal.',
+  },
+  {
+    icon: <Truck size={18} />,
+    body: 'Choose between platform couriers, store delivery, or third-party services based on your budget, speed, or ETA.',
+    title: 'Courier Bid Marketplace',
+  },
+  {
+    icon: <ShoppingBag size={18} />,
+    title: 'Single-Checkout Restrict',
+    body: 'Clean checkout workflow restricting items to one store branch, avoiding multi-location delivery failures.',
+  },
+];
+
+const heroImages = [
+  { src: 'https://images.unsplash.com/photo-1543168256-418811576931?w=600&q=80', alt: 'Fresh produce', caption: 'Fresh Produce' },
+  { src: 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=600&q=80', alt: 'Supermarket', caption: 'Top Supermarkets' },
+  { src: 'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=600&q=80', alt: 'Delivery', caption: 'Fast Delivery' },
+];
+
+/* ─── Sub-components ─── */
+function StoreCard({ store }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Hero Section */}
-      <section className="relative px-6 py-20 md:py-32 flex flex-col items-center justify-center overflow-hidden border-b border-slate-900/60 bg-gradient-to-b from-slateDark-900/20 to-slateDark-950">
-        {/* Animated Background Gradients */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-ceylon-500/10 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-marigold-500/5 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
+    <div
+      style={{ ...S.storeCard, ...(hovered ? S.storeCardHover : {}) }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div style={S.storeImg}>
+        <img src={store.img} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+      <div>
+        <div style={S.storeName}>{store.name}</div>
+        <div style={S.storeDesc}>{store.desc}</div>
+        <span style={S.storeRating}>⭐ {store.rating}</span>
+      </div>
+    </div>
+  );
+}
 
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl mx-auto text-center relative z-10 flex flex-col items-center"
-        >
-          {/* Tag badge */}
-          <motion.span 
-            variants={itemVariants}
-            className="bg-ceylon-500/10 border border-ceylon-500/30 text-ceylon-500 font-extrabold text-[10px] tracking-widest uppercase px-4.5 py-1.5 rounded-full mb-6"
-          >
-            🇱🇰 Sri Lanka's First Luxury Grocery Marketplace
+/* ─── Animation variants ─── */
+const container = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.13 } } };
+const item = { hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: 'easeOut' } } };
+
+/* ─── Main component ─── */
+export const LandingPage = () => {
+  const [ctaHover, setCtaHover] = useState(false);
+
+  return (
+    <div style={S.page}>
+
+      {/* ── Hero ── */}
+      <section style={S.hero}>
+        <motion.div variants={container} initial="hidden" animate="visible"
+          style={{ maxWidth: 860, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+          <motion.span variants={item} style={S.badge}>
+            🇱🇰 Sri Lanka's First Grocery Marketplace
           </motion.span>
 
-          {/* Title */}
-          <motion.h1 
-            variants={itemVariants}
-            className="text-4xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]"
-          >
-            Fresh Groceries, <br className="hidden sm:inline" />
-            <span className="text-gradient-ceylon">Smartest Prices.</span>
+          <motion.h1 variants={item} style={S.h1}>
+            Fresh Groceries,{' '}
+            <br />
+            <em style={S.h1em}>Smartest Prices.</em>
           </motion.h1>
 
-          {/* Subtitle */}
-          <motion.p 
-            variants={itemVariants}
-            className="text-slate-400 text-base md:text-xl max-w-2xl leading-relaxed mb-10"
-          >
-            Compare prices across Keells, Cargills Food City, SPAR, and Laugfs in real-time. Buy cheaper, track orders live, and get delivered instantly.
+          <motion.p variants={item} style={S.heroP}>
+            Compare prices across Keells, Cargills Food City, SPAR, and Laugfs in real-time.
+            Buy cheaper, track orders live, and get delivered instantly.
           </motion.p>
 
-          {/* CTAs */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link 
-              to="/select-location"
-              className="px-8 py-4 bg-ceylon-500 hover:bg-ceylon-600 text-white font-extrabold rounded-2xl flex items-center justify-center gap-2 transition-all duration-200 shadow-xl shadow-ceylon-500/20 hover:scale-[1.02]"
-            >
-              <span>Start Smart Shopping</span>
-              <ArrowRight className="w-4 h-4" />
+          <motion.div variants={item} style={S.ctaRow}>
+            {/* Primary CTA with delivery tooltip on hover */}
+            <div style={{ position: 'relative' }}
+              onMouseEnter={() => setCtaHover(true)}
+              onMouseLeave={() => setCtaHover(false)}>
+              <Link to="/select-location" style={{ textDecoration: 'none' }}>
+                <motion.button
+                  style={S.btnPrimary}
+                  whileHover={{ background: '#9E601A', y: -1 }}
+                  whileTap={{ scale: 0.97 }}>
+                  Start Shopping
+                  <ArrowRight size={15} />
+                </motion.button>
+              </Link>
+              <AnimatePresence>
+                {ctaHover && (
+                  <motion.div
+                    style={S.tooltip}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    transition={{ duration: 0.16 }}>
+                    <Clock size={12} />
+                    Delivered in 25–45 min
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <Link to="/register?role=Courier" style={{ textDecoration: 'none' }}>
+              <motion.button style={S.btnOutline} whileHover={{ borderColor: '#B8B5AF', y: -1 }} whileTap={{ scale: 0.97 }}>
+                Join as Delivery Partner
+              </motion.button>
             </Link>
-            <Link 
-              to="/register?role=Courier"
-              className="px-8 py-4 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 font-bold rounded-2xl text-center hover:scale-[1.02] transition-all duration-200"
-            >
-              Join as Delivery Partner
-            </Link>
+          </motion.div>
+
+          {/* Hero images */}
+          <motion.div variants={item} style={S.heroImgs}>
+            {heroImages.map((img) => (
+              <div key={img.alt} style={S.heroImgWrap}>
+                <img src={img.src} alt={img.alt} style={S.heroImg} />
+                <span style={S.heroImgCap}>{img.caption}</span>
+              </div>
+            ))}
           </motion.div>
         </motion.div>
       </section>
 
-      {/* Featured Stores Section */}
-      <section className="px-6 py-24 max-w-7xl mx-auto w-full">
-        <div className="text-center mb-16">
-          <span className="text-ceylon-500 text-xs font-bold uppercase tracking-wider">Supermarket Marketplace</span>
-          <h2 className="text-2xl md:text-4xl font-extrabold text-white mt-2">Shop Your Favorite Supermarkets</h2>
-          <p className="text-slate-400 text-sm md:text-base max-w-md mx-auto mt-3">
-            Get instant access to items stocked at Sri Lanka's leading retail brands.
-          </p>
+      {/* ── Stores ── */}
+      <section style={S.section}>
+        <p style={S.eyebrow}>Supermarket Marketplace</p>
+        <h2 style={S.secTitle}>Shop Your Favorite Supermarkets</h2>
+        <p style={S.secSub}>Get instant access to items stocked at Sri Lanka's leading retail brands.</p>
+        <div style={S.storesGrid}>
+          {stores.map((store) => <StoreCard key={store.name} store={store} />)}
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[
-            { name: 'Keells Super', code: 'keells', desc: 'Freshness Guaranteed', rating: 4.6, time: '25-35 mins', emoji: '🟢' },
-            { name: 'Cargills Food City', code: 'cargills', desc: 'Sri Lanka’s Everyday Retailer', rating: 4.5, time: '20-30 mins', emoji: '🔴' },
-            { name: 'SPAR Sri Lanka', code: 'spar', desc: 'International Quality & Assortment', rating: 4.8, time: '30-45 mins', emoji: '🟤' },
-            { name: 'Laugfs Supermarket', code: 'laugfs', desc: 'Your 24/7 Supermarket', rating: 4.2, time: '25-40 mins', emoji: '🟡' }
-          ].map((store, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ y: -6 }}
-              className="glass-panel border-slate-900 rounded-3xl p-6 flex flex-col justify-between hover:border-slate-800 transition-all duration-200"
-            >
-              <div>
-                <div className="w-12 h-12 bg-slate-950 rounded-2xl flex items-center justify-center text-2xl border border-slate-800 mb-5">
-                  {store.emoji}
-                </div>
-                <h3 className="font-extrabold text-lg text-white mb-1.5">{store.name}</h3>
-                <p className="text-slate-400 text-xs font-medium mb-4 leading-normal">{store.desc}</p>
-              </div>
-              <div className="border-t border-slate-900 pt-4 flex items-center justify-between text-xs font-bold text-slate-400">
-                <span className="flex items-center gap-1">⭐ {store.rating}</span>
-                <span>⏱️ {store.time}</span>
-              </div>
-            </motion.div>
+      {/* ── Features ── */}
+      <section style={S.featBand}>
+        <div style={S.featInner}>
+          {features.map((f) => (
+            <div key={f.title} style={S.feat}>
+              <div style={S.featIco}>{f.icon}</div>
+              <div style={S.featTitle}>{f.title}</div>
+              <div style={S.featBody}>{f.body}</div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Features Overview */}
-      <section className="px-6 py-20 bg-slate-950/40 border-y border-slate-900/60">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-ceylon-500/10 flex-shrink-0 flex items-center justify-center text-ceylon-500">
-              <Tag className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-lg text-white mb-2">Cheapest Basket Matcher</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Add items to your cart and let our price comparison engine compare exact items to find which retailer offers the cheapest subtotal.
-              </p>
-            </div>
+      {/* ── Promo band ── */}
+      <div style={S.promoWrap}>
+        <div style={S.promoInner}>
+          <div>
+            <h3 style={S.promoH3}>Deliver on your<br />own schedule.</h3>
+            <p style={S.promoP}>
+              Join as a courier partner and earn on your terms. Bid on deliveries,
+              set your zone, and get paid fast.
+            </p>
           </div>
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-ceylon-500/10 flex-shrink-0 flex items-center justify-center text-ceylon-500">
-              <Truck className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-lg text-white mb-2">Courier Bid Marketplace</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Choose between platform couriers, store delivery, or third-party courier services based on your budget, speed rating, or ETA needs.
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-ceylon-500/10 flex-shrink-0 flex items-center justify-center text-ceylon-500">
-              <ShoppingBag className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-lg text-white mb-2">Single-Checkout Restrict</h4>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Clean and modern checkout workflow restricting items to one supermarket store branch, avoiding multi-location delivery failures.
-              </p>
-            </div>
-          </div>
+          <Link to="/register?role=Courier" style={{ textDecoration: 'none' }}>
+            <motion.button style={S.btnGold} whileHover={{ background: '#9E601A' }} whileTap={{ scale: 0.97 }}>
+              Become a Partner →
+            </motion.button>
+          </Link>
         </div>
-      </section>
+      </div>
 
-      {/* Footer */}
-      <footer className="mt-auto px-6 py-10 border-t border-slate-900 bg-slate-950/80 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🛒</span>
-            <span className="font-bold text-slate-300">SMART GROCERY SRI LANKA</span>
-          </div>
-          <div>© 2026 Smart Grocery Sri Lanka. All Rights Reserved.</div>
-          <div className="flex gap-4 font-semibold text-slate-400">
-            <span className="hover:text-white cursor-pointer">Terms of Service</span>
-            <span className="hover:text-white cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-white cursor-pointer">Colombo Operations</span>
-          </div>
+      {/* ── Footer ── */}
+      <footer style={S.footer}>
+        <div style={S.fBrand}>🛒 Smart Grocery SL</div>
+        <div style={S.fLinks}>
+          <span style={S.fLink}>Terms of Service</span>
+          <span style={S.fLink}>Privacy Policy</span>
+          <span style={S.fLink}>Colombo Operations</span>
         </div>
+        <span style={S.fCopy}>© 2026 Smart Grocery Sri Lanka. All Rights Reserved.</span>
       </footer>
+
     </div>
   );
 };
+
 export default LandingPage;
