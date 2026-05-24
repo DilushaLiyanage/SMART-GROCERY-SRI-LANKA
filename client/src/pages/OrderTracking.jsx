@@ -339,15 +339,22 @@ export const OrderTracking = () => {
             {/* Offline Fallback Simulated Map Grid */}
             {!useGoogleMap && (
               <>
+                {/* Custom Map Background Image */}
+                <img 
+                  src="/colombo_map.png" 
+                  alt="Live Tracking Map" 
+                  className="absolute inset-0 w-full h-full object-cover opacity-60 z-0" 
+                />
+
                 {/* Custom Grid Map Simulation Overlay */}
-                <div className="absolute inset-0 bg-slate-950 opacity-90 grid grid-cols-10 grid-rows-10 gap-0 p-2 z-0">
+                <div className="absolute inset-0 bg-slate-950 opacity-40 grid grid-cols-10 grid-rows-10 gap-0 p-2 z-0">
                   {Array(100).fill(0).map((_, i) => (
-                    <div key={i} className="border border-slate-900/40"></div>
+                    <div key={i} className="border border-slate-900/20"></div>
                   ))}
                 </div>
 
                 {/* Simulated streets / coordinates map canvas */}
-                <svg className="absolute inset-0 w-full h-full z-0 opacity-40">
+                <svg className="absolute inset-0 w-full h-full z-0 opacity-30">
                   <line x1="10%" y1="10%" x2="90%" y2="90%" stroke="#1e293b" strokeWidth="6" strokeLinecap="round" />
                   <line x1="80%" y1="15%" x2="20%" y2="85%" stroke="#1e293b" strokeWidth="6" strokeLinecap="round" />
                   <line x1="20%" y1="20%" x2="80%" y2="80%" stroke="#198754" strokeWidth="3" strokeDasharray="6" />

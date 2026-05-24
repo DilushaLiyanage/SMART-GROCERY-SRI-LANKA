@@ -370,7 +370,7 @@ const heroImages = [
   { src: 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=600&q=80', alt: 'Supermarket', caption: 'Top Supermarkets' },
   { src: 'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=600&q=80', alt: 'Delivery', caption: 'Fast Delivery' },
   { src: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=600&q=80', alt: 'Budget matcher', caption: 'Budget Matcher' },
-  { src: 'https://images.unsplash.com/photo-1526367790999-015078648c7e?w=600&q=80', alt: 'Live tracking', caption: 'Live Tracking' },
+  { src: '/live_tracking_hero.png', alt: 'Live tracking', caption: 'Live Tracking' },
 ];
 
 /* ─── Sub-components ─── */

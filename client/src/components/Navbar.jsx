@@ -1,11 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
-import { ShoppingCart, LogOut, User, Menu, X, Plus, Minus, Trash2, Shield, Wallet } from 'lucide-react';
+import {
+  ShoppingCart, LogOut, Menu, X, Plus, Minus, Trash2,
+  Shield, Wallet, Search, MapPin, ChevronDown, Clock,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/* ─── Google Fonts (same as LandingPage) ─── */
+/* ─── Google Fonts ─── */
 if (typeof document !== 'undefined' && !document.getElementById('sgsl-fonts')) {
   const link = document.createElement('link');
   link.id = 'sgsl-fonts';
@@ -27,12 +30,12 @@ export const Navbar = () => {
   const { cartItems, selectedStore, removeFromCart, updateQuantity, getCartTotal } = useContext(CartContext);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [orderMode, setOrderMode] = useState('Delivery'); // 'Delivery' | 'Pickup'
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  const handleLogout = () => { logout(); navigate('/'); };
 
   const getDashboardLink = () => {
     if (!user) return '/';
@@ -45,65 +48,182 @@ export const Navbar = () => {
 
   const totalCartQty = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
-  /* ─────────────────────────────────────────────────── */
-  /*  Inline style tokens — matches LandingPage palette  */
-  /* ─────────────────────────────────────────────────── */
-  const gold = '#C07722';
-  const goldLight = '#FDF6EC';
-  const goldBorder = '#F5DFB0';
-  const ink = '#0A0A0A';
+  /* ─── Design tokens ─── */
+  const green = '#06C167';
+  const greenLight = '#E8F8EE';
+  const ink = '#1A1A1A';
   const surface = '#fff';
   const muted = '#6E6E6B';
   const border = '#EBEBEA';
   const pageBg = '#FAFAF8';
+  const gold = '#C07722';
+  const goldLight = '#FDF6EC';
+  const goldBorder = '#F5DFB0';
 
+  /* ─── Navbar shell ─── */
   const nav = {
     position: 'sticky',
     top: 0,
     zIndex: 40,
-    background: 'rgba(250,250,248,0.88)',
-    backdropFilter: 'blur(14px)',
-    WebkitBackdropFilter: 'blur(14px)',
+    background: surface,
     borderBottom: `1px solid ${border}`,
     fontFamily: "'DM Sans', sans-serif",
   };
 
   const inner = {
     width: '100%',
-    maxWidth: 1200,
+    maxWidth: 1280,
     margin: '0 auto',
-    padding: '0 32px',
-    height: 68,
+    padding: '0 20px',
+    height: 64,
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 24,
+    gap: 12,
   };
 
-  /* Brand */
-  const brandWrap = { display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' };
-  const brandIcon = { fontSize: 26 };
-  const brandText = {
-    fontFamily: "'Cormorant Garamond', serif",
-    fontWeight: 800,
-    fontSize: 22,
-    color: ink,
-    letterSpacing: '-0.02em',
-    lineHeight: 1,
+  /* ─── Delivery / Pickup toggle ─── */
+  const toggleGroup = {
+    display: 'flex',
+    alignItems: 'center',
+    background: '#F3F3F1',
+    borderRadius: 999,
+    padding: 3,
+    gap: 2,
+    flexShrink: 0,
   };
-  const brandSpan = { color: gold };
 
-  /* Nav links */
-  const navLink = {
+  const toggleBtn = (active) => ({
+    padding: '7px 16px',
+    borderRadius: 999,
+    border: active ? `0.5px solid ${border}` : 'none',
+    background: active ? surface : 'transparent',
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: active ? 600 : 500,
+    fontSize: 14,
+    color: active ? ink : muted,
+    cursor: 'pointer',
+    transition: 'all .15s',
+    whiteSpace: 'nowrap',
+  });
+
+  /* ─── Location pill ─── */
+  const locBtn = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 5,
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 14,
     fontWeight: 500,
-    fontSize: 15,
-    color: muted,
-    textDecoration: 'none',
-    transition: 'color .15s',
-    letterSpacing: '-0.01em',
+    color: ink,
+    padding: '7px 10px',
+    borderRadius: 10,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
   };
 
-  /* Wallet pill */
+  /* ─── Search bar ─── */
+  const searchWrap = {
+    flex: 1,
+    position: 'relative',
+    minWidth: 0,
+  };
+
+  const searchIconStyle = {
+    position: 'absolute',
+    left: 14,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: muted,
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+  };
+
+  const searchInput = {
+    width: '100%',
+    padding: '10px 16px 10px 42px',
+    border: 'none',
+    background: '#F3F3F1',
+    borderRadius: 999,
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 14,
+    color: ink,
+    outline: 'none',
+  };
+
+  /* ─── Right actions ─── */
+  const rightActions = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
+    marginLeft: 4,
+  };
+
+  const cartBtn = {
+    position: 'relative',
+    padding: '8px 10px',
+    background: 'none',
+    border: 'none',
+    borderRadius: 10,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    color: ink,
+  };
+
+  const cartBadge = {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    background: green,
+    color: '#fff',
+    fontWeight: 700,
+    fontSize: 10,
+    width: 18,
+    height: 18,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: `2px solid ${surface}`,
+  };
+
+  const loginBtn = {
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 500,
+    fontSize: 14,
+    color: ink,
+    background: 'none',
+    border: 'none',
+    padding: '8px 12px',
+    borderRadius: 10,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    display: 'flex',
+    alignItems: 'center',
+  };
+
+  const signupBtn = {
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: 600,
+    fontSize: 14,
+    color: surface,
+    background: ink,
+    border: 'none',
+    padding: '9px 20px',
+    borderRadius: 999,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    whiteSpace: 'nowrap',
+  };
+
+  /* ─── Logged-in user pill ─── */
   const walletPill = {
     display: 'flex',
     alignItems: 'center',
@@ -111,162 +231,81 @@ export const Navbar = () => {
     background: goldLight,
     border: `1px solid ${goldBorder}`,
     borderRadius: 999,
-    padding: '7px 14px',
+    padding: '6px 14px',
     fontSize: 13,
     fontWeight: 600,
     color: '#92580A',
+    flexShrink: 0,
   };
 
-  /* Avatar block */
-  const avatarBlock = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    paddingLeft: 16,
-    borderLeft: `1px solid ${border}`,
-  };
-  const avatarMeta = { display: 'flex', flexDirection: 'column', alignItems: 'flex-end' };
-  const avatarName = { fontSize: 14, fontWeight: 600, color: ink, lineHeight: 1.2 };
-  const avatarRole = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 3,
-    fontSize: 11,
-    color: muted,
-    fontWeight: 500,
-    marginTop: 2,
-  };
   const avatarCircle = {
-    width: 38,
-    height: 38,
+    width: 36,
+    height: 36,
     borderRadius: '50%',
-    background: goldLight,
-    border: `1.5px solid ${goldBorder}`,
+    background: greenLight,
+    border: `1.5px solid ${green}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 15,
-    fontWeight: 700,
-    color: gold,
-  };
-
-  /* Cart button */
-  const cartBtn = {
-    position: 'relative',
-    padding: '9px 11px',
-    background: goldLight,
-    border: `1px solid ${goldBorder}`,
-    borderRadius: 12,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    color: gold,
-    transition: 'background .15s',
-  };
-  const cartBadge = {
-    position: 'absolute',
-    top: -7,
-    right: -7,
-    background: gold,
-    color: '#fff',
-    fontWeight: 700,
-    fontSize: 10,
-    width: 20,
-    height: 20,
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: `2px solid ${pageBg}`,
-  };
-
-  /* Logout button */
-  const logoutBtn = {
-    padding: '9px 11px',
-    background: surface,
-    border: `1px solid ${border}`,
-    borderRadius: 12,
-    cursor: 'pointer',
-    color: muted,
-    display: 'flex',
-    alignItems: 'center',
-    transition: 'color .15s, border-color .15s',
-  };
-
-  /* Auth buttons */
-  const loginBtn = {
-    fontFamily: "'DM Sans', sans-serif",
-    fontWeight: 600,
-    fontSize: 15,
-    color: muted,
-    textDecoration: 'none',
-    transition: 'color .15s',
-  };
-  const registerBtn = {
-    fontFamily: "'DM Sans', sans-serif",
-    background: gold,
-    color: '#fff',
-    fontWeight: 600,
     fontSize: 14,
-    padding: '10px 22px',
-    borderRadius: 12,
-    textDecoration: 'none',
-    transition: 'background .15s',
+    fontWeight: 700,
+    color: '#0A5C38',
+    flexShrink: 0,
   };
 
-  /* Mobile hamburger */
-  const hamburgerBtn = {
+  const logoutBtn = {
     padding: '8px 10px',
-    background: surface,
+    background: 'none',
     border: `1px solid ${border}`,
-    borderRadius: 12,
+    borderRadius: 10,
     cursor: 'pointer',
     color: muted,
     display: 'flex',
     alignItems: 'center',
   };
 
-  /* ── Mobile Drawer ── */
+  /* ─── Mobile hamburger ─── */
+  const hamburgerBtn = {
+    padding: '7px 9px',
+    background: '#F3F3F1',
+    border: 'none',
+    borderRadius: 10,
+    cursor: 'pointer',
+    color: ink,
+    display: 'flex',
+    alignItems: 'center',
+  };
+
+  /* ─── Mobile Drawer ─── */
   const mobileDrawer = {
     position: 'fixed',
-    top: 68,
+    top: 64,
     left: 0,
     width: '100%',
     zIndex: 30,
-    background: 'rgba(250,250,248,0.97)',
-    backdropFilter: 'blur(14px)',
+    background: surface,
     borderBottom: `1px solid ${border}`,
-    padding: '24px 28px',
+    padding: '20px 20px 24px',
     flexDirection: 'column',
-    gap: 16,
+    gap: 12,
     fontFamily: "'DM Sans', sans-serif",
   };
 
-  const mobileUserRow = {
+  const mobileToggle = {
     display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    borderBottom: `1px solid ${border}`,
-    paddingBottom: 16,
+    background: '#F3F3F1',
+    borderRadius: 999,
+    padding: 3,
+    gap: 2,
     marginBottom: 4,
-  };
-
-  const mobileWalletRow = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    background: goldLight,
-    border: `1px solid ${goldBorder}`,
-    borderRadius: 14,
-    padding: '12px 16px',
   };
 
   const mobileLinkStyle = {
     fontWeight: 500,
-    fontSize: 16,
+    fontSize: 15,
     color: muted,
     textDecoration: 'none',
-    padding: '8px 0',
+    padding: '10px 0',
     display: 'block',
     borderBottom: `1px solid ${border}`,
   };
@@ -283,18 +322,16 @@ export const Navbar = () => {
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 600,
     fontSize: 14,
-    padding: '13px 0',
+    padding: '12px 0',
     borderRadius: 14,
     cursor: 'pointer',
     width: '100%',
   };
 
-  /* ── Cart Drawer ── */
+  /* ─── Cart Drawer ─── */
   const cartPanel = {
     position: 'fixed',
-    right: 0,
-    top: 0,
-    bottom: 0,
+    right: 0, top: 0, bottom: 0,
     zIndex: 50,
     width: '100%',
     maxWidth: 420,
@@ -315,7 +352,6 @@ export const Navbar = () => {
     background: pageBg,
   };
 
-  const cartHeaderLeft = { display: 'flex', alignItems: 'center', gap: 10 };
   const cartTitle = {
     fontFamily: "'Cormorant Garamond', serif",
     fontSize: 22,
@@ -347,8 +383,6 @@ export const Navbar = () => {
     justifyContent: 'space-between',
     marginBottom: 16,
   };
-  const storeChipLabel = { fontSize: 10, fontWeight: 700, color: gold, letterSpacing: '.1em', textTransform: 'uppercase' };
-  const storeChipName = { fontSize: 14, fontWeight: 600, color: ink, marginTop: 3 };
 
   const emptyState = {
     height: '100%',
@@ -374,8 +408,7 @@ export const Navbar = () => {
   };
 
   const cartItemThumb = {
-    width: 46,
-    height: 46,
+    width: 46, height: 46,
     background: '#fff',
     borderRadius: 12,
     border: `1px solid ${border}`,
@@ -385,9 +418,6 @@ export const Navbar = () => {
     fontSize: 22,
     flexShrink: 0,
   };
-
-  const cartItemName = { fontWeight: 600, fontSize: 13, color: ink, lineHeight: 1.3 };
-  const cartItemPrice = { fontSize: 12, color: muted, fontWeight: 500, marginTop: 3 };
 
   const qtyControl = {
     display: 'flex',
@@ -410,8 +440,6 @@ export const Navbar = () => {
     alignItems: 'center',
   };
 
-  const qtyNum = { width: 24, textAlign: 'center', fontSize: 13, fontWeight: 700, color: ink };
-
   const deleteBtn = {
     padding: '6px 8px',
     background: 'none',
@@ -433,36 +461,23 @@ export const Navbar = () => {
     gap: 14,
   };
 
-  const subtotalRow = { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' };
-  const subtotalLabel = { fontSize: 14, color: muted, fontWeight: 500 };
-  const subtotalAmount = {
-    fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 28,
-    fontWeight: 800,
-    color: ink,
-    letterSpacing: '-0.02em',
-  };
-
   const checkoutBtn = {
     width: '100%',
-    padding: '15px 0',
-    background: gold,
+    padding: '14px 0',
+    background: ink,
     color: '#fff',
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 600,
     fontSize: 15,
-    borderRadius: 14,
+    borderRadius: 999,
     border: 'none',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    transition: 'background .15s',
-    letterSpacing: '-0.01em',
+    transition: 'opacity .15s',
   };
-
-  const cartNote = { fontSize: 11, color: '#B0AEA9', textAlign: 'center', lineHeight: 1.6 };
 
   return (
     <>
@@ -470,99 +485,96 @@ export const Navbar = () => {
       <nav style={nav}>
         <div style={inner}>
 
-          {/* Logo */}
-          <Link to="/" style={brandWrap}>
-            <span style={brandIcon}>🛒</span>
-            <span style={brandText}>
-              Smart<span style={brandSpan}>Grocery</span>
-            </span>
-          </Link>
+          {/* Delivery / Pickup toggle */}
+          <div style={toggleGroup} className="hidden md:flex">
+            {['Delivery', 'Pickup'].map(mode => (
+              <button
+                key={mode}
+                style={toggleBtn(orderMode === mode)}
+                onClick={() => setOrderMode(mode)}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
 
-          {/* Desktop right side */}
-          <div style={{ alignItems: 'center', gap: 16, marginLeft: 'auto' }} className="hidden md:flex">
+          {/* Location + time */}
+          <button style={locBtn} className="hidden md:flex">
+            <MapPin size={15} color={green} />
+            <span>Polhengoda Road</span>
+            <span style={{ width: 4, height: 4, borderRadius: '50%', background: muted, margin: '0 2px', display: 'inline-block' }} />
+            <span style={{ color: muted }}>Now</span>
+            <ChevronDown size={14} color={muted} />
+          </button>
+
+          {/* Search */}
+          <div style={searchWrap}>
+            <span style={searchIconStyle}><Search size={16} /></span>
+            <input
+              style={searchInput}
+              type="text"
+              placeholder="Search SmartGrocery"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Desktop right */}
+          <div style={rightActions} className="hidden md:flex">
             {user ? (
               <>
-                <Link
-                  to={getDashboardLink()}
-                  style={navLink}
-                  onMouseEnter={e => (e.target.style.color = ink)}
-                  onMouseLeave={e => (e.target.style.color = muted)}
-                >
+                <Link to={getDashboardLink()} style={{ ...loginBtn, textDecoration: 'none' }}>
                   Dashboard
                 </Link>
 
                 {user.role === 'Customer' && (
-                  <Link
-                    to="/orders"
-                    style={navLink}
-                    onMouseEnter={e => (e.target.style.color = ink)}
-                    onMouseLeave={e => (e.target.style.color = muted)}
-                  >
+                  <Link to="/orders" style={{ ...loginBtn, textDecoration: 'none' }}>
                     My Orders
                   </Link>
                 )}
 
                 {/* Wallet */}
                 <div style={walletPill}>
-                  <Wallet size={14} color={gold} />
+                  <Wallet size={13} color={gold} />
                   <span>Rs. {user.balance.toLocaleString()}</span>
                 </div>
 
-                {/* Avatar + name */}
-                <div style={avatarBlock}>
-                  <div style={avatarMeta}>
-                    <span style={avatarName}>{user.name}</span>
-                    <span style={avatarRole}>
-                      <Shield size={10} color={gold} />
-                      {user.role}
-                    </span>
-                  </div>
-                  <div style={avatarCircle}>{user.name.charAt(0)}</div>
+                {/* Avatar */}
+                <div style={avatarCircle} title={user.name}>
+                  {user.name.charAt(0)}
                 </div>
 
                 {/* Cart */}
                 {user.role === 'Customer' && (
-                  <button style={cartBtn} onClick={() => setIsCartOpen(true)}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#FDE68A')}
-                    onMouseLeave={e => (e.currentTarget.style.background = goldLight)}>
-                    <ShoppingCart size={20} />
-                    {totalCartQty > 0 && <span style={cartBadge}>{totalCartQty}</span>}
+                  <button style={cartBtn} onClick={() => setIsCartOpen(true)} aria-label={`Cart, ${totalCartQty} items`}>
+                    <ShoppingCart size={22} />
+                    <span style={cartBadge}>{totalCartQty}</span>
                   </button>
                 )}
 
                 {/* Logout */}
-                <button style={logoutBtn} onClick={handleLogout}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#DC2626'; e.currentTarget.style.borderColor = '#FECACA'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = muted; e.currentTarget.style.borderColor = border; }}>
-                  <LogOut size={18} />
+                <button style={logoutBtn} onClick={handleLogout}>
+                  <LogOut size={17} />
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" style={loginBtn}
-                  onMouseEnter={e => (e.target.style.color = ink)}
-                  onMouseLeave={e => (e.target.style.color = muted)}>
-                  Login
-                </Link>
-                <Link to="/register" style={registerBtn}
-                  onMouseEnter={e => (e.target.style.background = '#9E601A')}
-                  onMouseLeave={e => (e.target.style.background = gold)}>
-                  Register
-                </Link>
+                <Link to="/login" style={loginBtn}>Log in</Link>
+                <Link to="/register" style={signupBtn}>Sign up</Link>
               </>
             )}
           </div>
 
           {/* Mobile right */}
-          <div style={{ alignItems: 'center', gap: 10 }} className="flex md:hidden">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} className="flex md:hidden">
             {user?.role === 'Customer' && (
-              <button style={cartBtn} onClick={() => setIsCartOpen(true)}>
-                <ShoppingCart size={19} />
+              <button style={cartBtn} onClick={() => setIsCartOpen(true)} aria-label="Cart">
+                <ShoppingCart size={21} />
                 {totalCartQty > 0 && <span style={cartBadge}>{totalCartQty}</span>}
               </button>
             )}
             <button style={hamburgerBtn} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMobileMenuOpen ? <X size={19} /> : <Menu size={19} />}
             </button>
           </div>
         </div>
@@ -573,25 +585,46 @@ export const Navbar = () => {
         {isMobileMenuOpen && (
           <motion.div
             style={mobileDrawer}
-            initial={{ opacity: 0, y: -16 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.18 }}
             className="flex md:hidden"
           >
+            {/* Mode toggle */}
+            <div style={mobileToggle}>
+              {['Delivery', 'Pickup'].map(mode => (
+                <button
+                  key={mode}
+                  style={{ ...toggleBtn(orderMode === mode), flex: 1, justifyContent: 'center' }}
+                  onClick={() => setOrderMode(mode)}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+
+            {/* Location */}
+            <button style={{ ...locBtn, padding: '10px 0', borderBottom: `1px solid ${border}` }}>
+              <MapPin size={15} color={green} />
+              <span>Polhengoda Road</span>
+              <span style={{ color: muted, margin: '0 2px' }}>·</span>
+              <span style={{ color: muted }}>Now</span>
+              <ChevronDown size={14} color={muted} />
+            </button>
+
             {user ? (
               <>
-                <div style={mobileUserRow}>
-                  <div style={{ ...avatarCircle, width: 44, height: 44, fontSize: 17 }}>{user.name.charAt(0)}</div>
+                {/* User info */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: `1px solid ${border}` }}>
+                  <div style={avatarCircle}>{user.name.charAt(0)}</div>
                   <div>
-                    <div style={{ fontSize: 16, fontWeight: 600, color: ink }}>{user.name}</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: ink }}>{user.name}</div>
                     <div style={{ fontSize: 12, color: muted, marginTop: 2 }}>{user.email}</div>
                   </div>
-                </div>
-
-                <div style={mobileWalletRow}>
-                  <span style={{ fontSize: 13, color: muted, fontWeight: 500 }}>Wallet Balance</span>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: '#92580A' }}>Rs. {user.balance.toLocaleString()}</span>
+                  <div style={{ ...walletPill, marginLeft: 'auto', fontSize: 12 }}>
+                    Rs. {user.balance.toLocaleString()}
+                  </div>
                 </div>
 
                 <Link to={getDashboardLink()} style={mobileLinkStyle} onClick={() => setIsMobileMenuOpen(false)}>
@@ -602,20 +635,25 @@ export const Navbar = () => {
                     My Orders
                   </Link>
                 )}
-
                 <button style={mobileLogoutBtn} onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}>
-                  <LogOut size={16} /> Logout
+                  <LogOut size={15} /> Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" style={{ ...mobileLinkStyle, textAlign: 'center', border: `1px solid ${border}`, borderRadius: 14, padding: '13px 0' }}
-                  onClick={() => setIsMobileMenuOpen(false)}>
-                  Login
+                <Link
+                  to="/login"
+                  style={{ ...mobileLinkStyle, textAlign: 'center', border: `1px solid ${border}`, borderRadius: 14, padding: '12px 0' }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Log in
                 </Link>
-                <Link to="/register" style={{ ...registerBtn, textAlign: 'center', padding: '13px 0', display: 'block', fontSize: 15 }}
-                  onClick={() => setIsMobileMenuOpen(false)}>
-                  Register
+                <Link
+                  to="/register"
+                  style={{ ...signupBtn, textAlign: 'center', padding: '12px 0', display: 'block', fontSize: 15, borderRadius: 14 }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Sign up
                 </Link>
               </>
             )}
@@ -627,7 +665,6 @@ export const Navbar = () => {
       <AnimatePresence>
         {isCartOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.3 }}
@@ -636,18 +673,17 @@ export const Navbar = () => {
               style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#0A0A0A', cursor: 'pointer' }}
             />
 
-            {/* Panel */}
             <motion.div
               style={cartPanel}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.28 }}
+              transition={{ type: 'tween', duration: 0.26 }}
             >
               {/* Header */}
               <div style={cartHeader}>
-                <div style={cartHeaderLeft}>
-                  <ShoppingCart size={20} color={gold} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <ShoppingCart size={20} color={green} />
                   <span style={cartTitle}>Your Basket</span>
                 </div>
                 <button style={cartCloseBtn} onClick={() => setIsCartOpen(false)}>
@@ -660,8 +696,12 @@ export const Navbar = () => {
                 {cartItems.length > 0 && selectedStore && (
                   <div style={storeChip}>
                     <div>
-                      <div style={storeChipLabel}>Supermarket</div>
-                      <div style={storeChipName}>{storeNames[selectedStore]}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: gold, letterSpacing: '.1em', textTransform: 'uppercase' }}>
+                        Supermarket
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: ink, marginTop: 3 }}>
+                        {storeNames[selectedStore]}
+                      </div>
                     </div>
                     <span style={{ fontSize: 22 }}>🏪</span>
                   </div>
@@ -678,21 +718,21 @@ export const Navbar = () => {
                     </p>
                   </div>
                 ) : (
-                  cartItems.map((item) => (
+                  cartItems.map(item => (
                     <div key={item.productId} style={cartItem}>
                       <div style={cartItemThumb}>🍎</div>
-
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={cartItemName}>{item.name}</div>
-                        <div style={cartItemPrice}>Rs. {item.price.toLocaleString()}</div>
+                        <div style={{ fontWeight: 600, fontSize: 13, color: ink, lineHeight: 1.3 }}>{item.name}</div>
+                        <div style={{ fontSize: 12, color: muted, fontWeight: 500, marginTop: 3 }}>Rs. {item.price.toLocaleString()}</div>
                       </div>
-
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div style={qtyControl}>
                           <button style={qtyBtn} onClick={() => updateQuantity(item.productId, item.quantity - 1)}>
                             <Minus size={13} />
                           </button>
-                          <span style={qtyNum}>{item.quantity}</span>
+                          <span style={{ width: 24, textAlign: 'center', fontSize: 13, fontWeight: 700, color: ink }}>
+                            {item.quantity}
+                          </span>
                           <button style={qtyBtn} onClick={() => updateQuantity(item.productId, item.quantity + 1)}>
                             <Plus size={13} />
                           </button>
@@ -714,18 +754,20 @@ export const Navbar = () => {
               {/* Footer */}
               {cartItems.length > 0 && (
                 <div style={cartFooter}>
-                  <div style={subtotalRow}>
-                    <span style={subtotalLabel}>Subtotal</span>
-                    <span style={subtotalAmount}>Rs. {getCartTotal().toLocaleString()}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontSize: 14, color: muted, fontWeight: 500 }}>Subtotal</span>
+                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 800, color: ink, letterSpacing: '-0.02em' }}>
+                      Rs. {getCartTotal().toLocaleString()}
+                    </span>
                   </div>
-                  <p style={cartNote}>
+                  <p style={{ fontSize: 11, color: '#B0AEA9', textAlign: 'center', lineHeight: 1.6 }}>
                     Prices compiled from local stores. Delivery fee & taxes calculated at checkout.
                   </p>
                   <button
                     style={checkoutBtn}
                     onClick={() => { setIsCartOpen(false); navigate('/checkout'); }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#9E601A')}
-                    onMouseLeave={e => (e.currentTarget.style.background = gold)}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
                   >
                     Proceed to Checkout →
                   </button>
