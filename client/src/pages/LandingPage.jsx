@@ -64,7 +64,7 @@ const S = {
     fontSize: 15,
     color: '#6E6E6B',
     lineHeight: 1.75,
-    maxWidth: 480,
+    maxWidth: 620,
     margin: '0 auto 34px',
     fontWeight: 400,
   },
