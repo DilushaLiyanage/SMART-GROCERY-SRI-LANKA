@@ -237,7 +237,6 @@ export const Navbar = () => {
     backdropFilter: 'blur(14px)',
     borderBottom: `1px solid ${border}`,
     padding: '24px 28px',
-    display: 'flex',
     flexDirection: 'column',
     gap: 16,
     fontFamily: "'DM Sans', sans-serif",
@@ -480,7 +479,7 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop right side */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 'auto' }} className="hidden md:flex">
+          <div style={{ alignItems: 'center', gap: 16, marginLeft: 'auto' }} className="hidden md:flex">
             {user ? (
               <>
                 <Link
@@ -555,7 +554,7 @@ export const Navbar = () => {
           </div>
 
           {/* Mobile right */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }} className="md:hidden">
+          <div style={{ alignItems: 'center', gap: 10 }} className="flex md:hidden">
             {user?.role === 'Customer' && (
               <button style={cartBtn} onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart size={19} />
@@ -578,7 +577,7 @@ export const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden"
+            className="flex md:hidden"
           >
             {user ? (
               <>
