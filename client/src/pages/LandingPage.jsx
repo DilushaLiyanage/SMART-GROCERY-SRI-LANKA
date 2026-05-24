@@ -26,7 +26,7 @@ const S = {
 
   /* Hero */
   hero: {
-    backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url(/bg.jpg)',
+    backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), url(/bg.jpg)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     borderBottom: '1px solid #EBEBEA',
@@ -121,19 +121,24 @@ const S = {
   },
 
   /* Hero images */
-  heroImgs: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3,1fr)',
-    gap: 16,
+  carouselContainer: {
     width: '100%',
-    maxWidth: 'none',
+    overflow: 'hidden',
+    position: 'relative',
     margin: '48px 0 0 0',
+  },
+  carouselTrack: {
+    display: 'flex',
+    gap: 16,
+    width: 'max-content',
   },
   heroImgWrap: {
     borderRadius: 24,
     overflow: 'hidden',
     height: 'clamp(180px, 20vw, 260px)',
+    width: 'clamp(260px, 28vw, 360px)',
     position: 'relative',
+    flexShrink: 0,
   },
   heroImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
   heroImgCap: {
@@ -364,6 +369,8 @@ const heroImages = [
   { src: 'https://images.unsplash.com/photo-1543168256-418811576931?w=600&q=80', alt: 'Fresh produce', caption: 'Fresh Produce' },
   { src: 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=600&q=80', alt: 'Supermarket', caption: 'Top Supermarkets' },
   { src: 'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=600&q=80', alt: 'Delivery', caption: 'Fast Delivery' },
+  { src: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=600&q=80', alt: 'Budget matcher', caption: 'Budget Matcher' },
+  { src: 'https://images.unsplash.com/photo-1526367790999-015078648c7e?w=600&q=80', alt: 'Live tracking', caption: 'Live Tracking' },
 ];
 
 /* ─── Sub-components ─── */
@@ -457,14 +464,27 @@ export const LandingPage = () => {
             </motion.div>
           </div>
 
-          {/* Hero images stretching completely edge-to-edge */}
-          <motion.div variants={item} style={S.heroImgs}>
-            {heroImages.map((img) => (
-              <div key={img.alt} style={S.heroImgWrap}>
-                <img src={img.src} alt={img.alt} style={S.heroImg} />
-                <span style={S.heroImgCap}>{img.caption}</span>
-              </div>
-            ))}
+          {/* Hero images stretching completely edge-to-edge with slow loop */}
+          <motion.div variants={item} style={S.carouselContainer}>
+            <motion.div
+              style={S.carouselTrack}
+              animate={{ x: [0, "-50%"] }}
+              transition={{
+                x: {
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  duration: 25,
+                  ease: "linear",
+                },
+              }}
+            >
+              {[...heroImages, ...heroImages].map((img, idx) => (
+                <div key={idx} style={S.heroImgWrap}>
+                  <img src={img.src} alt={img.alt} style={S.heroImg} />
+                  <span style={S.heroImgCap}>{img.caption}</span>
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
         </motion.div>
       </section>
