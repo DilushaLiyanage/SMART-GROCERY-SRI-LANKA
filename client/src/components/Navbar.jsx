@@ -27,13 +27,12 @@ const storeNames = {
 };
 
 export const Navbar = () => {
-  const { user, logout, currentLocation } = useContext(AuthContext);
+  const { user, logout, currentLocation, searchQuery, setSearchQuery } = useContext(AuthContext);
   const { cartItems, selectedStore, removeFromCart, updateQuantity, getCartTotal } = useContext(CartContext);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [orderMode, setOrderMode] = useState('Delivery'); // 'Delivery' | 'Pickup'
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 

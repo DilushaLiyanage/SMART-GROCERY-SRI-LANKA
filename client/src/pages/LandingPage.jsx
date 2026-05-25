@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Tag, Truck, ShoppingBag, Clock } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 /* ─── Google Fonts injected once ─── */
 if (typeof document !== 'undefined' && !document.getElementById('sgsl-fonts')) {
@@ -164,7 +165,7 @@ const S = {
   /* Stores */
   section: { padding: '56px 40px', maxWidth: 940, margin: '0 auto', width: '100%' },
   eyebrow: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
     color: '#C07722',
     letterSpacing: '.12em',
@@ -173,57 +174,59 @@ const S = {
   },
   secTitle: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 'clamp(26px, 4vw, 36px)',
+    fontSize: 'clamp(32px, 5vw, 44px)',
     fontWeight: 800,
     color: '#0A0A0A',
     lineHeight: 1.1,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   secSub: {
-    fontSize: 13,
-    color: '#8A8A87',
+    fontSize: 15,
+    color: '#6E6E6B',
     lineHeight: 1.7,
-    maxWidth: 400,
+    maxWidth: 540,
     marginBottom: 36,
   },
   storesGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: 14,
+    gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+    gap: 20,
   },
   storeCard: {
     background: '#fff',
-    border: '1px solid #EBEBEA',
-    borderRadius: 22,
-    padding: 22,
+    border: '1.5px solid #EBEBEA',
+    borderRadius: '24px 8px 24px 8px', // Asymmetrical premium corner bits
+    padding: '26px 24px',
     display: 'flex',
-    gap: 16,
+    alignItems: 'center',
+    gap: 18,
     cursor: 'pointer',
-    transition: 'border-color .18s, box-shadow .18s, transform .18s',
+    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
   },
   storeCardHover: {
-    borderColor: '#C07722',
-    boxShadow: '0 4px 24px rgba(192,119,34,.10)',
-    transform: 'translateY(-3px)',
+    borderColor: '#06C167', // Ceylon Green hover border!
+    boxShadow: '0 12px 30px rgba(6, 193, 103, 0.08)',
+    transform: 'translateY(-4px)',
+    borderRadius: '8px 24px 8px 24px', // Invert diagonal corners on hover
   },
   storeImg: {
-    width: 54,
-    height: 54,
-    borderRadius: 14,
+    width: 68,
+    height: 68,
+    borderRadius: '16px 6px 16px 6px', // match diagonal style
     overflow: 'hidden',
     flexShrink: 0,
-    border: '1px solid #F0EDE8',
+    border: '1.5px solid #F0EDE8',
   },
-  storeName: { fontSize: 14, fontWeight: 600, color: '#0A0A0A', marginBottom: 4 },
-  storeDesc: { fontSize: 11, color: '#9A9A96', lineHeight: 1.55, marginBottom: 12 },
+  storeName: { fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 4 },
+  storeDesc: { fontSize: 12, color: '#6E6E6B', lineHeight: 1.45, marginBottom: 10 },
   storeRating: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 5,
-    fontSize: 11,
-    fontWeight: 600,
-    color: '#6E6E6B',
-    background: '#F7F6F4',
+    fontSize: 12,
+    fontWeight: 700,
+    color: '#1A1A1A',
+    background: '#F3F3F1',
     padding: '4px 10px',
     borderRadius: 999,
   },
@@ -401,6 +404,11 @@ const item = { hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, trans
 /* ─── Main component ─── */
 export const LandingPage = () => {
   const [ctaHover, setCtaHover] = useState(false);
+  const { searchQuery } = useContext(AuthContext);
+
+  const filteredStores = stores.filter(store =>
+    store.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div style={S.page}>
@@ -499,7 +507,13 @@ export const LandingPage = () => {
         <h2 style={S.secTitle}>Shop Your Favorite Supermarkets</h2>
         <p style={S.secSub}>Get instant access to items stocked at Sri Lanka's leading retail brands.</p>
         <div style={S.storesGrid}>
-          {stores.map((store) => <StoreCard key={store.name} store={store} />)}
+          {filteredStores.length > 0 ? (
+            filteredStores.map((store) => <StoreCard key={store.name} store={store} />)
+          ) : (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '48px 0', color: '#6E6E6B', fontSize: 15, fontFamily: "'DM Sans', sans-serif" }}>
+              No supermarkets found matching "{searchQuery}"
+            </div>
+          )}
         </div>
       </section>
 

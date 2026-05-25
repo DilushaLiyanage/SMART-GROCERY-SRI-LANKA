@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentLocation, setCurrentLocation] = useState(() => {
     const saved = localStorage.getItem('current_location');
     return saved ? JSON.parse(saved) : { latitude: 6.8972, longitude: 79.8781, address: 'Polhengoda Road' };
@@ -130,7 +131,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error, login, register, logout, updateBalance, currentLocation, updateLocation }}>
+    <AuthContext.Provider value={{ user, token, loading, error, login, register, logout, updateBalance, currentLocation, updateLocation, searchQuery, setSearchQuery }}>
       {children}
     </AuthContext.Provider>
   );
