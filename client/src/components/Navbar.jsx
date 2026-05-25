@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import LocationModal from './LocationModal';
 import { CartContext } from '../context/CartContext';
 import {
   ShoppingCart, LogOut, Menu, X, Plus, Minus, Trash2,
@@ -26,10 +27,11 @@ const storeNames = {
 };
 
 export const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, currentLocation } = useContext(AuthContext);
   const { cartItems, selectedStore, removeFromCart, updateQuantity, getCartTotal } = useContext(CartContext);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [orderMode, setOrderMode] = useState('Delivery'); // 'Delivery' | 'Pickup'
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
@@ -499,9 +501,9 @@ export const Navbar = () => {
           </div>
 
           {/* Location + time */}
-          <button style={locBtn} className="hidden md:flex">
+          <button style={locBtn} className="hidden md:flex" onClick={() => setIsLocationModalOpen(true)}>
             <MapPin size={15} color={green} />
-            <span>Polhengoda Road</span>
+            <span className="truncate max-w-[150px]">{currentLocation?.address || 'Polhengoda Road'}</span>
             <span style={{ width: 4, height: 4, borderRadius: '50%', background: muted, margin: '0 2px', display: 'inline-block' }} />
             <span style={{ color: muted }}>Now</span>
             <ChevronDown size={14} color={muted} />
@@ -605,12 +607,18 @@ export const Navbar = () => {
             </div>
 
             {/* Location */}
-            <button style={{ ...locBtn, padding: '10px 0', borderBottom: `1px solid ${border}` }}>
-              <MapPin size={15} color={green} />
-              <span>Polhengoda Road</span>
+            <button 
+              style={{ ...locBtn, padding: '10px 0', borderBottom: `1px solid ${border}`, width: '100%', justifyContent: 'flex-start' }}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsLocationModalOpen(true);
+              }}
+            >
+              <MapPin size={15} color={green} style={{ marginRight: 4 }} />
+              <span className="truncate flex-1 text-left">{currentLocation?.address || 'Polhengoda Road'}</span>
               <span style={{ color: muted, margin: '0 2px' }}>·</span>
               <span style={{ color: muted }}>Now</span>
-              <ChevronDown size={14} color={muted} />
+              <ChevronDown size={14} color={muted} style={{ marginLeft: 'auto' }} />
             </button>
 
             {user ? (
@@ -777,6 +785,12 @@ export const Navbar = () => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Location Selector Modal */}
+      <LocationModal 
+        isOpen={isLocationModalOpen} 
+        onClose={() => setIsLocationModalOpen(false)} 
+      />
     </>
   );
 };

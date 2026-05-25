@@ -163,6 +163,56 @@ exports.getMe = async (req, res) => {
   });
 };
 
+exports.updateLocation = async (req, res) => {
+  const { latitude, longitude, address } = req.body;
+
+  try {
+    const isMock = process.env.USE_MOCK_DB === 'true';
+
+    if (isMock) {
+      const db = getMockDB();
+      const userIndex = db.users.findIndex(u => u._id === req.user._id);
+      if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      db.users[userIndex].location = {
+        latitude: parseFloat(latitude) || 6.9271,
+        longitude: parseFloat(longitude) || 79.8612,
+        address: address || 'Colombo, Sri Lanka'
+      };
+      saveMockDB();
+
+      return res.json({
+        success: true,
+        message: 'Location updated successfully',
+        location: db.users[userIndex].location
+      });
+    } else {
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      user.location = {
+        latitude: parseFloat(latitude) || 6.9271,
+        longitude: parseFloat(longitude) || 79.8612,
+        address: address || 'Colombo, Sri Lanka'
+      };
+      await user.save();
+
+      return res.json({
+        success: true,
+        message: 'Location updated successfully',
+        location: user.location
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server Error during location update' });
+  }
+};
+
 // ==========================================
 // 2. STORES CONTROLLER
 // ==========================================

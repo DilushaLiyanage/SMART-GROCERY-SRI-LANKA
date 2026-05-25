@@ -10,6 +10,39 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState(() => {
+    const saved = localStorage.getItem('current_location');
+    return saved ? JSON.parse(saved) : { latitude: 6.8972, longitude: 79.8781, address: 'Polhengoda Road' };
+  });
+
+  // Sync currentLocation with user.location if user has it
+  useEffect(() => {
+    if (user && user.location && user.location.address) {
+      setCurrentLocation(user.location);
+      localStorage.setItem('current_location', JSON.stringify(user.location));
+    }
+  }, [user]);
+
+  const updateLocation = async (loc) => {
+    setCurrentLocation(loc);
+    localStorage.setItem('current_location', JSON.stringify(loc));
+
+    if (user && token) {
+      try {
+        const res = await axios.put(`${API_URL}/auth/location`, loc, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.success) {
+          setUser(prev => ({ ...prev, location: res.data.location }));
+        }
+      } catch (err) {
+        console.error('Failed to sync location with server:', err.message);
+        setUser(prev => ({ ...prev, location: loc }));
+      }
+    } else if (user) {
+      setUser(prev => ({ ...prev, location: loc }));
+    }
+  };
 
   // Set Authorization header for all requests
   if (token) {
@@ -97,7 +130,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error, login, register, logout, updateBalance }}>
+    <AuthContext.Provider value={{ user, token, loading, error, login, register, logout, updateBalance, currentLocation, updateLocation }}>
       {children}
     </AuthContext.Provider>
   );

@@ -5,6 +5,7 @@ const {
   register,
   login,
   getMe,
+  updateLocation,
   getStores,
   getStoreByCode,
   getProducts,
@@ -24,6 +25,7 @@ const {
 router.post('/auth/register', register);
 router.post('/auth/login', login);
 router.get('/auth/me', protect, getMe);
+router.put('/auth/location', protect, updateLocation);
 
 // --- Store Routes ---
 router.get('/stores', getStores);

@@ -14,7 +14,7 @@ const colomboAreas = [
 ];
 
 export const SelectLocation = () => {
-  const { user } = useContext(AuthContext);
+  const { user, updateLocation } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [selectedArea, setSelectedArea] = useState(colomboAreas[0]);
@@ -126,16 +126,14 @@ export const SelectLocation = () => {
     setAddressText(`Custom Pin [${clickLat.toFixed(4)}, ${clickLng.toFixed(4)}], Colombo, Sri Lanka`);
   };
 
-  const handleConfirmLocation = () => {
+  const handleConfirmLocation = async () => {
     if (!addressText) return;
     
-    if (user) {
-      user.location = {
-        latitude: pinCoord.lat,
-        longitude: pinCoord.lng,
-        address: addressText
-      };
-    }
+    await updateLocation({
+      latitude: pinCoord.lat,
+      longitude: pinCoord.lng,
+      address: addressText
+    });
     
     setSuccess(true);
     setTimeout(() => {
