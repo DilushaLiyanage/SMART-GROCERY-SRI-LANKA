@@ -2,6 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getMockDB, saveMockDB } = require('../config/db');
 const { User, Store, Product, Order, Courier, Review } = require('../models/Schemas');
+const { sendOtpEmail } = require('../utils/mailer');
+
+const otpStore = new Map(); // In-memory OTP code store (email/phone -> code)
+
 
 // Helper to sign JWT token
 const signToken = (id) => {
@@ -108,6 +112,185 @@ exports.register = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: 'Server Error during registration' });
+  }
+};
+
+exports.checkUser = async (req, res) => {
+  const { emailOrPhone } = req.body;
+
+  try {
+    const isMock = process.env.USE_MOCK_DB === 'true';
+    let user;
+
+    if (isMock) {
+      const db = getMockDB();
+      user = db.users.find(u => 
+        (u.email && u.email.toLowerCase() === emailOrPhone.toLowerCase().trim()) || 
+        (u.phone && u.phone === emailOrPhone.trim())
+      );
+    } else {
+      user = await User.findOne({
+        $or: [
+          { email: emailOrPhone.toLowerCase().trim() },
+          { phone: emailOrPhone.trim() }
+        ]
+      });
+    }
+
+    // Generate 4-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const key = emailOrPhone.toLowerCase().trim();
+    otpStore.set(key, otp);
+
+    const isEmail = emailOrPhone.includes('@') && emailOrPhone.includes('.');
+    let emailResult = null;
+
+    if (isEmail) {
+      // Send real email
+      emailResult = await sendOtpEmail(emailOrPhone.trim(), otp);
+    } else {
+      // Log to console for phones
+      console.log(`[SMS OTP SIMULATION] Sent OTP ${otp} to phone number ${emailOrPhone}`);
+    }
+
+    const response = {
+      success: true,
+      exists: !!user,
+      isEmail
+    };
+
+    if (!isEmail) {
+      response.otp = otp;
+    }
+
+    // Include ethereal preview url in development logs if applicable
+    if (emailResult && emailResult.previewUrl) {
+      response.previewUrl = emailResult.previewUrl;
+    }
+
+    return res.json(response);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server Error during verification request' });
+  }
+};
+
+exports.verifyOtp = async (req, res) => {
+  const { emailOrPhone, otp } = req.body;
+  const key = emailOrPhone.toLowerCase().trim();
+
+  try {
+    if (!otpStore.has(key)) {
+      return res.status(400).json({ success: false, message: 'OTP expired or not sent. Please request a new one.' });
+    }
+
+    const savedOtp = otpStore.get(key);
+
+    if (savedOtp !== otp) {
+      return res.status(400).json({ success: false, message: 'Invalid 4-digit verification code.' });
+    }
+
+    // Correct OTP, clear it
+    otpStore.delete(key);
+
+    // Retrieve user if they exist
+    const isMock = process.env.USE_MOCK_DB === 'true';
+    let user;
+
+    if (isMock) {
+      const db = getMockDB();
+      user = db.users.find(u => 
+        (u.email && u.email.toLowerCase() === key) || 
+        (u.phone && u.phone === emailOrPhone.trim())
+      );
+    } else {
+      user = await User.findOne({
+        $or: [
+          { email: key },
+          { phone: emailOrPhone.trim() }
+        ]
+      });
+    }
+
+    if (user) {
+      // Exists: login directly
+      const token = signToken(user._id);
+      return res.json({
+        success: true,
+        verified: true,
+        exists: true,
+        token,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          location: user.location,
+          balance: user.balance
+        }
+      });
+    }
+
+    // New user: proceed to profile creation
+    return res.json({
+      success: true,
+      verified: true,
+      exists: false
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server Error during OTP verification' });
+  }
+};
+
+exports.otpLogin = async (req, res) => {
+  const { emailOrPhone } = req.body;
+
+  try {
+    const isMock = process.env.USE_MOCK_DB === 'true';
+    let user;
+
+    if (isMock) {
+      const db = getMockDB();
+      user = db.users.find(u => 
+        (u.email && u.email.toLowerCase() === emailOrPhone.toLowerCase().trim()) || 
+        (u.phone && u.phone === emailOrPhone.trim())
+      );
+    } else {
+      user = await User.findOne({
+        $or: [
+          { email: emailOrPhone.toLowerCase().trim() },
+          { phone: emailOrPhone.trim() }
+        ]
+      });
+    }
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const token = signToken(user._id);
+
+    return res.json({
+      success: true,
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        location: user.location,
+        balance: user.balance
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server Error during OTP login' });
   }
 };
 

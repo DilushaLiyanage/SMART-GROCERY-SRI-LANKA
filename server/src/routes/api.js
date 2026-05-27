@@ -4,6 +4,9 @@ const { protect, authorize } = require('../middleware/auth');
 const {
   register,
   login,
+  checkUser,
+  otpLogin,
+  verifyOtp,
   getMe,
   updateLocation,
   getStores,
@@ -24,6 +27,9 @@ const {
 // --- Auth Routes ---
 router.post('/auth/register', register);
 router.post('/auth/login', login);
+router.post('/auth/check', checkUser);
+router.post('/auth/verify-otp', verifyOtp);
+router.post('/auth/otp-login', otpLogin);
 router.get('/auth/me', protect, getMe);
 router.put('/auth/location', protect, updateLocation);
 

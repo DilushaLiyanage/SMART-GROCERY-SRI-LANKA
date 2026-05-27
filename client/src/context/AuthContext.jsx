@@ -118,6 +118,61 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const checkUser = async (emailOrPhone) => {
+    setError(null);
+    try {
+      const res = await axios.post(`${API_URL}/auth/check`, { emailOrPhone });
+      return res.data;
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Verification check failed.';
+      setError(msg);
+      return { success: false, error: msg };
+    }
+  };
+
+  const otpLogin = async (emailOrPhone) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post(`${API_URL}/auth/otp-login`, { emailOrPhone });
+      if (res.data.success) {
+        localStorage.setItem('token', res.data.token);
+        setToken(res.data.token);
+        setUser(res.data.user);
+        return { success: true };
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'OTP verification failed.';
+      setError(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOtp = async (emailOrPhone, otp) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post(`${API_URL}/auth/verify-otp`, { emailOrPhone, otp });
+      if (res.data.success && res.data.verified) {
+        if (res.data.exists && res.data.token) {
+          localStorage.setItem('token', res.data.token);
+          setToken(res.data.token);
+          setUser(res.data.user);
+        }
+        return res.data;
+      }
+      return { success: false, message: 'Invalid response from server' };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'OTP verification failed.';
+      setError(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
@@ -131,7 +186,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error, login, register, logout, updateBalance, currentLocation, updateLocation, searchQuery, setSearchQuery }}>
+    <AuthContext.Provider value={{ user, token, loading, error, login, register, checkUser, verifyOtp, otpLogin, logout, updateBalance, currentLocation, updateLocation, searchQuery, setSearchQuery }}>
       {children}
     </AuthContext.Provider>
   );

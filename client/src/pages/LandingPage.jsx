@@ -240,16 +240,16 @@ const S = {
   featInner: {
     maxWidth: 940,
     margin: '0 auto',
-    padding: '52px 40px',
+    padding: '64px 40px', // slightly increased padding
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: 32,
+    gap: 36, // slightly increased gap
   },
-  feat: { display: 'flex', flexDirection: 'column', gap: 12 },
+  feat: { display: 'flex', flexDirection: 'column', gap: 16 }, // increased gap
   featIco: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
+    width: 50, // increased icon wrapper size
+    height: 50,
+    borderRadius: 14,
     background: '#FDF6EC',
     border: '1px solid #F5DFB0',
     display: 'flex',
@@ -257,69 +257,115 @@ const S = {
     justifyContent: 'center',
     color: '#C07722',
   },
-  featTitle: { fontSize: 13, fontWeight: 600, color: '#0A0A0A' },
-  featBody: { fontSize: 12, color: '#9A9A96', lineHeight: 1.65 },
+  featTitle: { fontSize: 16, fontWeight: 700, color: '#0A0A0A' }, // increased font size!
+  featBody: { fontSize: 13.5, color: '#6E6E6B', lineHeight: 1.7 }, // increased font size and line height!
 
   /* Promo */
-  promoWrap: { maxWidth: 940, margin: '0 auto', padding: '0 40px 56px', width: '100%' },
+  promoWrap: { maxWidth: 940, margin: '0 auto', padding: '0 40px 64px', width: '100%' }, // increased padding
   promoInner: {
     background: '#0A0A0A',
-    borderRadius: 26,
-    padding: '40px 44px',
+    borderRadius: 32, // increased border radius
+    padding: '52px 56px', // increased padding
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 24,
+    gap: 28,
     overflow: 'hidden',
     position: 'relative',
   },
   promoH3: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 28,
+    fontSize: 36, // increased font size!
     fontWeight: 800,
     color: '#FAF8F4',
-    marginBottom: 8,
+    marginBottom: 10,
     lineHeight: 1.15,
   },
-  promoP: { fontSize: 12, color: '#787874', maxWidth: 340, lineHeight: 1.65 },
+  promoP: { fontSize: 14, color: '#787874', maxWidth: 420, lineHeight: 1.7 }, // increased font size and max width
   btnGold: {
     background: '#C07722',
     color: '#fff',
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 600,
-    fontSize: 13,
-    padding: '13px 22px',
-    borderRadius: 12,
+    fontSize: 14.5, // slightly larger font
+    padding: '15px 26px', // increased padding
+    borderRadius: 14, // slightly rounder
     border: 'none',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
   },
 
-  /* Footer */
+  /* Footer - Standard Multi-column Layout with Dark Theme */
   footer: {
-    padding: '28px 40px',
-    borderTop: '1px solid #EBEBEA',
+    background: '#111111', // Pitch dark charcoal background!
+    borderTop: '1px solid #222222', // Muted dark border
+    padding: '64px 40px 32px',
+    fontFamily: "'DM Sans', sans-serif",
+    color: '#FAF8F4', // Warm white text
+  },
+  footerGrid: {
+    maxWidth: 940,
+    margin: '0 auto 48px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    gap: 32,
+  },
+  footerCol: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 14,
+  },
+  footerBrand: {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: 22,
+    fontWeight: 800,
+    color: '#ffffff', // Clean white
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  footerDesc: {
+    fontSize: 13,
+    color: '#9A9A96', // Light gray muted text
+    lineHeight: 1.6,
+    maxWidth: 240,
+  },
+  footerHeading: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: '#C07722', // Ceylon gold accent
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    marginBottom: 4,
+  },
+  footerList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    padding: 0,
+    margin: 0,
+    listStyle: 'none',
+  },
+  footerLink: {
+    fontSize: 13,
+    color: '#9A9A96', // Muted light gray
+    textDecoration: 'none',
+    cursor: 'pointer',
+    transition: 'color 0.2s',
+  },
+  footerBottom: {
     maxWidth: 940,
     margin: '0 auto',
-    width: '100%',
+    paddingTop: 24,
+    borderTop: '1px solid #222222', // Muted dark divider
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: 12,
+    fontSize: 12,
+    color: '#6E6E6B', // Muted copyright text
   },
-  fBrand: {
-    fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 18,
-    fontWeight: 800,
-    color: '#0A0A0A',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-  },
-  fLinks: { display: 'flex', gap: 20 },
-  fLink: { fontSize: 12, color: '#9A9A96', cursor: 'pointer', fontWeight: 500 },
-  fCopy: { fontSize: 11, color: '#C4C2BE' },
 };
 
 /* ─── Data ─── */
@@ -352,17 +398,17 @@ const stores = [
 
 const features = [
   {
-    icon: <Tag size={18} />,
+    icon: <Tag size={22} />,
     title: 'Cheapest Basket Matcher',
     body: 'Add items to your cart and let our price comparison engine find which retailer offers the cheapest subtotal.',
   },
   {
-    icon: <Truck size={18} />,
+    icon: <Truck size={22} />,
     body: 'Choose between platform couriers, store delivery, or third-party services based on your budget, speed, or ETA.',
     title: 'Courier Bid Marketplace',
   },
   {
-    icon: <ShoppingBag size={18} />,
+    icon: <ShoppingBag size={22} />,
     title: 'Single-Checkout Restrict',
     body: 'Clean checkout workflow restricting items to one store branch, avoiding multi-location delivery failures.',
   },
@@ -550,13 +596,59 @@ export const LandingPage = () => {
 
       {/* ── Footer ── */}
       <footer style={S.footer}>
-        <div style={S.fBrand}>🛒 Smart Grocery SL</div>
-        <div style={S.fLinks}>
-          <span style={S.fLink}>Terms of Service</span>
-          <span style={S.fLink}>Privacy Policy</span>
-          <span style={S.fLink}>Colombo Operations</span>
+        <div style={S.footerGrid}>
+          {/* Col 1: Brand */}
+          <div style={S.footerCol}>
+            <div style={S.footerBrand}>🛒 Smart Grocery SL</div>
+            <p style={S.footerDesc}>
+              Sri Lanka's premier real-time grocery price comparison and instant delivery platform.
+            </p>
+            <span style={{ fontSize: '11px', color: '#B0AEA9', fontWeight: 600 }}>
+              📍 Colombo Operations, LK
+            </span>
+          </div>
+
+          {/* Col 2: Retailers */}
+          <div style={S.footerCol}>
+            <div style={S.footerHeading}>Retailers</div>
+            <ul style={S.footerList}>
+              <li><Link to="/select-location" style={S.footerLink}>Keells Super</Link></li>
+              <li><Link to="/select-location" style={S.footerLink}>Cargills Food City</Link></li>
+              <li><Link to="/select-location" style={S.footerLink}>SPAR Sri Lanka</Link></li>
+              <li><Link to="/select-location" style={S.footerLink}>Laugfs Supermarket</Link></li>
+            </ul>
+          </div>
+
+          {/* Col 3: Partners */}
+          <div style={S.footerCol}>
+            <div style={S.footerHeading}>Partners</div>
+            <ul style={S.footerList}>
+              <li><Link to="/register?role=Courier" style={S.footerLink}>Register as Rider</Link></li>
+              <li><Link to="/login" style={S.footerLink}>Supermarket Portal</Link></li>
+              <li><Link to="/login" style={S.footerLink}>Courier Dashboard</Link></li>
+              <li><Link to="/login" style={S.footerLink}>System Admin</Link></li>
+            </ul>
+          </div>
+
+          {/* Col 4: Legals & Support */}
+          <div style={S.footerCol}>
+            <div style={S.footerHeading}>Help & Legal</div>
+            <ul style={S.footerList}>
+              <li><span style={S.footerLink}>Terms of Service</span></li>
+              <li><span style={S.footerLink}>Privacy Policy</span></li>
+              <li><span style={S.footerLink}>Support Center</span></li>
+              <li><span style={S.footerLink}>Refund & Return Policy</span></li>
+            </ul>
+          </div>
         </div>
-        <span style={S.fCopy}>© 2026 Smart Grocery Sri Lanka. All Rights Reserved.</span>
+
+        {/* Bottom Bar */}
+        <div style={S.footerBottom}>
+          <span>© {new Date().getFullYear()} Smart Grocery Sri Lanka. All Rights Reserved.</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            Powered by Apriori Recommendations 🚀
+          </span>
+        </div>
       </footer>
 
     </div>
